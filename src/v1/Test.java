@@ -12,15 +12,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
-import org.opencv.highgui.HighGui;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import net.sourceforge.tess4j.Tesseract;
-import net.sourceforge.tess4j.TesseractException;
-import net.sourceforge.tess4j.util.LoadLibs;
 
 public class Test {
     public static void main(String[] args)
@@ -33,8 +32,8 @@ public class Test {
         MatOfByte mat = new MatOfByte();
 //       
         
-        File tessDataFolder = LoadLibs.extractTessResources("tessdata");
-        tesseract.setDatapath(tessDataFolder.getAbsolutePath());
+//        File tessDataFolder = LoadLibs.extractTessResources("tessdata");
+//        tesseract.setDatapath(tessDataFolder.getAbsolutePath());
         
         try {
 //          tesseract.setDatapath("D:/Tess4J/tessdata");
@@ -43,7 +42,7 @@ public class Test {
 //        	HighGui.imshow("imageGray", imageGray);
 //        	Imgcodecs.imwrite("D:\\\\scaledImage8.jpg", imageGray);
 //        	
-        	String imagePath = "D:\\\\testImages\\testImage19.jpg";
+        	String imagePath = "D:\\\\testImages\\tess_handwriting_test1.jpg";
             Mat image = Imgcodecs.imread(imagePath);
 
             // Convert the image to grayscale
@@ -57,16 +56,30 @@ public class Test {
                 Imgproc.threshold(bitPlane, bitPlane, 127, 255, Imgproc.THRESH_BINARY);
                 Imgcodecs.imwrite("D:\\output\\bpimage0.jpg", bitPlane);
 //            }
+            
+                
+            // amended 23-05-07
+            Mat dst = new Mat(bitPlane.rows(), bitPlane.cols(), bitPlane.type());
+//            Mat kernel = Mat.ones(5,5, CvType.CV_32F);
+//            Imgproc.morphologyEx(bitPlane, dst, Imgproc.MORPH_OPEN, kernel);
+//            
+//            Mat dst2 = new Mat(dst.rows(), dst.cols(), dst.type());
+            Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size((2*2) + 1, (2*2)+1));
+            //Applying erosion on the Image
+            Imgproc.erode(bitPlane, dst, kernel2);
+            
+            //Converting matrix to JavaFX writable image
+            Imgcodecs.imwrite("D:\\\\output\\morpho1_1.jpg", dst);
             // the path of your tess data folder
             // inside the extracted file
             String text
-                = tesseract.doOCR(new File("D:\\output\\bpimage0.jpg"));
+                = tesseract.doOCR(new File("D:\\\\output\\morpho1_1.jpg"));
   
             // path of your image file
             System.out.print(text);
             
             //show scaled image on frame
-            Imgcodecs.imencode(".jpg", bitPlane, mat); 
+            Imgcodecs.imencode(".jpg", dst, mat); 
             byte[] byteArray = mat.toArray(); 
             InputStream in = new ByteArrayInputStream(byteArray); 
             BufferedImage buf;

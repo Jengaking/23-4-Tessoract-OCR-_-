@@ -61,7 +61,7 @@ import org.slf4j.*;
 public class Tesseract implements ITesseract {
 
     private static Tesseract instance;
-    private String language = "eng+eng1";
+    private String language = "eng";
     private String datapath;
     private RenderedFormat renderedFormat = RenderedFormat.TEXT;
     private int psm = -1;
